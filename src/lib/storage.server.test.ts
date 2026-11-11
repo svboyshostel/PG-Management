@@ -1,0 +1,9 @@
+// @vitest-environment node
+import {afterEach,it,expect,vi} from "vitest";
+import {privateStorage,storageCall,storageConfig} from "./storage.server";
+afterEach(()=>vi.unstubAllEnvs());
+function configure(){vi.stubEnv("SUPABASE_URL","https://storage.example.invalid");vi.stubEnv("SUPABASE_SECRET_KEY","sb_secret_test_placeholder");vi.stubEnv("SUPABASE_STORAGE_BUCKET","private-documents");}
+it("missing configuration does not return a usable storage client",()=>{vi.stubEnv("SUPABASE_URL","");expect(storageConfig()).toBeNull();});
+it("does not read deprecated SUPABASE_SERVICE_ROLE_KEY and rejects legacy JWTs",()=>{vi.stubEnv("SUPABASE_URL","https://storage.example.invalid");vi.stubEnv("SUPABASE_STORAGE_BUCKET","private-documents");vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY","eyJlegacy");expect(storageConfig()).toBeNull();vi.stubEnv("SUPABASE_SECRET_KEY","eyJhbGciOiJIUzI1NiJ9.legacy");expect(()=>storageConfig()).toThrow("sb_secret_");});
+it("refuses public buckets for resident files",async()=>{configure();await expect(privateStorage(vi.fn(async()=>Response.json({public:true})))).rejects.toThrow("private bucket");});
+it("opaque server keys use apikey, not JWT bearer",async()=>{configure();const c=storageConfig();if(!c)throw Error("config");const f=vi.fn(async(_url:string|URL|Request,init?:RequestInit)=>{const h=new Headers(init?.headers);expect(h.has("Authorization")).toBe(false);expect(h.get("apikey")).toBe("sb_secret_test_placeholder");return Response.json({});});await storageCall(c,"/bucket/private-documents",{headers:{Authorization:"Bearer stale"}},f);expect(f).toHaveBeenCalledOnce();});

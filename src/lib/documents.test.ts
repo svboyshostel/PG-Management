@@ -1,0 +1,7 @@
+import {it,expect,describe} from "vitest";
+import {validateDocument,validateDocumentFile,DOCUMENT_MAX_BYTES} from "./documents";
+describe("Private documents",()=>{
+  it("accepts only JPEG PNG PDF signatures",()=>{expect(()=>validateDocument("image/jpeg",new Uint8Array([255,216,255]))).not.toThrow();expect(()=>validateDocument("image/png",new Uint8Array([137,80,78,71,13,10,26,10]))).not.toThrow();expect(()=>validateDocument("application/pdf",new TextEncoder().encode("%PDF-1.7"))).not.toThrow();expect(()=>validateDocument("text/html",new Uint8Array([1]))).toThrow();});
+  it("rejects misleading MIME types",()=>{expect(()=>validateDocument("image/jpeg",new TextEncoder().encode("<script>"))).toThrow("contents");});
+  it("enforces 4 MB and nonempty limit",()=>{expect(DOCUMENT_MAX_BYTES).toBe(4194304);expect(()=>validateDocument("image/jpeg",new Uint8Array(DOCUMENT_MAX_BYTES+1))).toThrow("4 MB");expect(()=>validateDocument("image/jpeg",new Uint8Array())).toThrow();expect(()=>validateDocumentFile({type:"image/jpeg",size:DOCUMENT_MAX_BYTES})).not.toThrow();expect(()=>validateDocumentFile({type:"image/jpeg",size:DOCUMENT_MAX_BYTES+1})).toThrow("4 MB");expect(()=>validateDocumentFile({type:"text/plain",size:100})).toThrow("JPEG, PNG or PDF");});
+});

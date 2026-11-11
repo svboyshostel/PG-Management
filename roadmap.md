@@ -1,0 +1,24 @@
+# Roadmap
+- [x] Final export: remove WhatsApp API automation; preserve manual sharing/history
+- [x] Final export: blank environment templates, migration CLI and client deployment guide
+- [x] Final export: private Supabase document storage with Neon references and authorization (mock-tested)
+- [x] Final export: room-wise EB drafts, historical daily allocation, adjustments and atomic finalization
+- [x] Final export: 106 tests, public browser checks and export readiness report; no production migrations/deployment
+- [ ] Final export: live storage upload/read/delete — client must configure private Supabase Storage and apply prepared Neon migration in isolated environment
+- [ ] Final export: expand secret-file ignore patterns after export — Lovable manages .gitignore; existing .env is already excluded
+- [x] Login password visibility eye icon
+- [x] Forgot-password via owner recovery code (no email), Settings → Security, tests
+
+- [x] Phase 1: rooms, guardian + ID, deposit status, due day, itemized bill
+- [x] Phase 2: WhatsApp Message Center (manual sending)
+- [x] ID image upload implementation — private Supabase Storage selected; live configuration remains above
+- [x] Phase 4: assigned-branch staff access and explicit messaging permission implemented/tested in isolated PostgreSQL
+- [ ] Phase 4: activate branch assignments — owner must review migration and apply to existing database
+- [x] Phase 3 WhatsApp Cloud API removed by final-export request; legacy history preserved
+- [x] WhatsApp templates unified into one list (Settings WhatsApp tab removed)
+- [x] Phase 4: audit and safe security fixes; full report in docs/phase4-audit-report.md
+- [x] Phase 4: automated PostgreSQL, mocked Meta, public browser and simulated 50–500 resident checks
+- [ ] Phase 4: authenticated end-to-end browser/layout tests — needs owner/staff sign-in in preview or isolated demo environment
+- [ ] Phase 4: financial concurrency/charge idempotency/bulk-discount fixes — requires approval before changing settlement behavior/schema
+- [ ] Phase 4: durable login/setup throttling and hosted concurrency/load/backup restore — needs agreed deployment safeguards and isolated environment
+- [x] Phase 4: production/demo readiness report; no deployment, real messages or Phase 5
