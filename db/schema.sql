@@ -215,8 +215,6 @@ alter table residents add column if not exists id_verification text not null def
 
 alter table residents drop constraint if exists residents_id_exclusive;
 
-alter table residents add constraint residents_id_exclusive check (not (id_number is not null and id_doc_key is not null));
-
 alter table bill_lines add column if not exists entry_date date not null default current_date;
 
 alter table bill_lines add column if not exists service_month date;

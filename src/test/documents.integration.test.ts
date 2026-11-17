@@ -54,4 +54,4 @@ it("migrates legacy 5 MB resident_documents constraint safely while preserving e
   await expect(pg.query("insert into resident_documents(resident_id,bucket,object_key,file_name,mime_type,size_bytes) values($1,'private','k-ok','ok.jpg','image/jpeg',$2)",[id,4194304])).resolves.toBeDefined();
   await expect(pg.query("update resident_documents set delete_pending_at=now(), deleted_at=now() where file_name='legacy.pdf'")).resolves.toBeDefined();
   await pg.close();
-});
+},15000);

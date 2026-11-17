@@ -67,42 +67,41 @@ export const depositLabel: Record<DepositStatus, string> = { none: "No deposit",
 export const ID_TYPES = ["aadhaar", "pan", "driving_licence", "passport", "voter_id", "other"] as const;
 export const ID_TYPE_LABEL: Record<string, string> = { aadhaar: "Aadhaar", pan: "PAN", driving_licence: "Driving licence", passport: "Passport", voter_id: "Voter ID", other: "Other" };
 export const ID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-export const ID_IMAGE_MAX = 4 * 1024 * 1024;
+export const ID_IMAGE_MAX = 5 * 1024 * 1024;
 export function validateIdImage(file: { type: string; size: number }) {
   if (!ID_IMAGE_TYPES.includes(file.type)) throw new Error("ID image must be JPG, PNG or WebP.");
-  if (file.size > ID_IMAGE_MAX) throw new Error("ID image must be 4 MB or smaller.");
+  if (file.size > ID_IMAGE_MAX) throw new Error("ID image must be 5 MB or smaller.");
   return true;
 }
 /** Aadhaar is never stored in full: only the last 4 digits, masked. */
 export const maskAadhaar = (digits: string) => "XXXX XXXX " + digits.slice(-4);
 
 export type IdInput = { method?: string | null | undefined; type?: string | null | undefined; number?: string | null | undefined; hasImage?: boolean | undefined };
-/** The two ID methods are mutually exclusive. Returns what may be stored. */
+/** Returns normalized ID proof fields. ID number and uploaded document are optional and can coexist. */
 export function normalizeIdProof(i: IdInput): { id_method: "manual" | "upload" | null; id_type: string | null; id_number: string | null } {
-  const method = i.method || null;
-  if (!method) {
-    if (i.number || i.hasImage) throw new Error("Choose how the ID proof is given.");
+  const type = i.type && (ID_TYPES as readonly string[]).includes(i.type) ? i.type : null;
+  const rawNumber = String(i.number ?? "").trim();
+  const hasImage = !!i.hasImage || i.method === "upload";
+
+  if (!type) {
+    if (rawNumber || hasImage) throw new Error("Choose the ID proof type.");
     return { id_method: null, id_type: null, id_number: null };
   }
-  const type = i.type && (ID_TYPES as readonly string[]).includes(i.type) ? i.type : null;
-  if (!type) throw new Error("Choose the ID proof type.");
-  if (method === "manual") {
-    if (i.hasImage) throw new Error("Manual entry can't include an image. Remove the image or switch to upload.");
-    const raw = String(i.number ?? "").trim();
-    if (!raw) throw new Error("Enter the ID number.");
+
+  let processedNumber: string | null = null;
+  if (rawNumber) {
     if (type === "aadhaar") {
-      const d = raw.replace(/\D/g, "");
+      const d = rawNumber.replace(/\D/g, "");
       if (d.length !== 12) throw new Error("Aadhaar must have 12 digits. Only the last 4 are saved.");
-      return { id_method: "manual", id_type: type, id_number: maskAadhaar(d) };
+      processedNumber = maskAadhaar(d);
+    } else {
+      if (rawNumber.length > 30) throw new Error("ID number is too long.");
+      processedNumber = rawNumber.toUpperCase();
     }
-    if (raw.length > 30) throw new Error("ID number is too long.");
-    return { id_method: "manual", id_type: type, id_number: raw.toUpperCase() };
   }
-  if (method === "upload") {
-    if (i.number) throw new Error("Upload doesn't take an ID number. Clear it or switch to manual entry.");
-    return { id_method: "upload", id_type: type, id_number: null };
-  }
-  throw new Error("Unknown ID method.");
+
+  const id_method = hasImage ? "upload" : "manual";
+  return { id_method, id_type: type, id_number: processedNumber };
 }
 
 /* ---------- Itemized bill ---------- */

@@ -442,7 +442,6 @@ export const onboardResident = createServerFn({ method: "POST" })
     const id = crypto.randomUUID();
     const g = guardian(data);
     const idp = normalizeIdProof({ method: data.idMethod, type: data.idType, number: data.idNumber });
-    if (idp.id_method === "upload") throw new Error(UPLOAD_UNAVAILABLE);
     const stmts = [
       { text: `insert into residents (id, name, mobile, alt_mobile, branch_id, joining_date, due_day_override, deposit_agreed, notes, guardian_name, guardian_relation, guardian_phone, id_method, id_type, id_number)
                values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`,
@@ -478,11 +477,12 @@ export const updateResident = createServerFn({ method: "POST" })
     const g = guardian(data);
     const cur = (await q<any>(`select id_method, id_type, id_number, id_doc_key from residents where id=$1`, [data.id]))[0];
     if (!cur) throw new Error("Resident not found.");
-    // Keep the saved (masked) number when the same manual ID is left unchanged.
-    const unchanged = data.idMethod === cur.id_method && data.idType === cur.id_type && data.idNumber === cur.id_number;
-    const idp = unchanged ? { id_method: cur.id_method, id_type: cur.id_type, id_number: cur.id_number } : normalizeIdProof({ method: data.idMethod, type: data.idType, number: data.idNumber });
-    if (idp.id_method === "upload" && !cur.id_doc_key) throw new Error("Upload the ID from the resident document section first.");
-    if (cur.id_doc_key && idp.id_method !== "upload") throw new Error("Delete the private document before changing the ID proof method.");
+    // Keep the saved (masked) number when the same ID is left unchanged.
+    const unchanged = data.idType === cur.id_type && data.idNumber === cur.id_number;
+    const idp = unchanged
+      ? { id_method: cur.id_method, id_type: cur.id_type, id_number: cur.id_number }
+      : normalizeIdProof({ method: data.idMethod ?? (cur.id_doc_key ? "upload" : undefined), type: data.idType, number: data.idNumber, hasImage: !!cur.id_doc_key });
+    const effectiveMethod = cur.id_doc_key ? "upload" : idp.id_method;
     const ver = ["pending", "verified", "rejected"].includes(data.idVerification ?? "") ? data.idVerification : "pending";
     if (u.role !== "owner") {
       const prev = (await q<any>(`select id_verification from residents where id=$1`, [data.id]))[0]?.id_verification;
@@ -491,7 +491,7 @@ export const updateResident = createServerFn({ method: "POST" })
     await q(`update residents set name=$2, mobile=$3, alt_mobile=$4, deposit_agreed=$5, notes=$6, guardian_name=$7, guardian_relation=$8, guardian_phone=$9,
                id_method=$10, id_type=$11, id_number=$12, id_verification=$13 where id=$1`,
       [data.id, req(data.name, "Name required"), mobile, data.altMobile ?? "", paise(data.depositAgreed), data.notes ?? "", g.name, g.relation, g.phone,
-       idp.id_method, idp.id_type, idp.id_number, unchanged || idp.id_method ? ver : "pending"]);
+       effectiveMethod, idp.id_type, idp.id_number, unchanged || effectiveMethod ? ver : "pending"]);
     return { ok: true };
   });
 

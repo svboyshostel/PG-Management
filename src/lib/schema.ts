@@ -166,7 +166,7 @@ export const SCHEMA_STATEMENTS: string[] = [
   `alter table settings add column if not exists timezone text not null default 'Asia/Kolkata'`,
   `alter table settings add column if not exists due_day_migrated boolean not null default false`,
   `update settings set default_due_day = case when due_window = 'last_week' then 28 else 7 end, due_day_migrated = true where not due_day_migrated`,
-  // Phase 1: guardian + ID proof (Aadhaar stored masked only).
+  // Phase 1: guardian + ID proof (Aadhaar stored masked only; ID number and document upload can coexist).
   `alter table residents add column if not exists guardian_name text not null default ''`,
   `alter table residents add column if not exists guardian_relation text not null default ''`,
   `alter table residents add column if not exists guardian_phone text not null default ''`,
@@ -176,7 +176,6 @@ export const SCHEMA_STATEMENTS: string[] = [
   `alter table residents add column if not exists id_doc_key text`,
   `alter table residents add column if not exists id_verification text not null default 'pending' check (id_verification in ('pending','verified','rejected'))`,
   `alter table residents drop constraint if exists residents_id_exclusive`,
-  `alter table residents add constraint residents_id_exclusive check (not (id_number is not null and id_doc_key is not null))`,
   // Phase 1: charge entry date, service month and category (bill's billing_month is the allocated month).
   `alter table bill_lines add column if not exists entry_date date not null default current_date`,
   `alter table bill_lines add column if not exists service_month date`,

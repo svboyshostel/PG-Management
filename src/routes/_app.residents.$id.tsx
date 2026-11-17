@@ -74,8 +74,10 @@ function ResidentPage() {
           <div className="text-xs text-muted-foreground">Due {dateLabel(data.breakdown.dueDate)}</div></Card>
         <Card className="p-4 text-sm"><div className="mb-2 font-display font-semibold">Guardian & ID</div>
           <div>{r.guardian_name || "—"}{r.guardian_relation && ` (${r.guardian_relation})`}{r.guardian_phone && ` · ${r.guardian_phone}`}</div>
-          <div className="mt-1">{r.id_method === "manual" ? `${ID_TYPE_LABEL[r.id_type] ?? r.id_type}: ${r.id_number}` : r.id_method === "upload" || r.id_doc_key ? `${r.id_type ? (ID_TYPE_LABEL[r.id_type] ?? r.id_type) : "ID"}: Private document uploaded` : "ID not collected"}
-            {(r.id_method || r.id_doc_key) && <Badge variant={r.id_verification === "verified" ? "default" : r.id_verification === "rejected" ? "destructive" : "secondary"} className="ml-2 capitalize">{r.id_verification}</Badge>}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <span>{r.id_type ? (ID_TYPE_LABEL[r.id_type] ?? r.id_type) : "ID proof"}: {r.id_number || (r.id_type ? "Number not entered" : "Not collected")}</span>
+            {(r.id_type || r.id_method || r.id_doc_key) && <Badge variant={r.id_verification === "verified" ? "default" : r.id_verification === "rejected" ? "destructive" : "secondary"} className="capitalize">{r.id_verification}</Badge>}
+          </div>
           <ResidentDocuments residentId={r.id} /></Card>
       </div>
 
@@ -307,7 +309,7 @@ function EditDialog({ d, onClose }: { d: D; onClose: () => void }) {
     <Field label="Alternate mobile"><Input value={f.altMobile} onChange={(e) => setF({ ...f, altMobile: e.target.value })} /></Field>
     <Field label="Deposit agreed (₹)"><Input value={f.deposit} onChange={(e) => setF({ ...f, deposit: e.target.value })} /></Field>
     <GuardianIdFields v={g} set={(p) => setG((o) => ({ ...o, ...p }))} />
-    {g.idMethod && <Field label="ID verification">{user.role === "owner"
+    {(g.idType || g.idMethod || !!r.id_doc_key) && <Field label="ID verification">{user.role === "owner"
       ? <Sel value={f.idVerification} onChange={(e: any) => setF({ ...f, idVerification: e.target.value })}><option value="pending">Pending</option><option value="verified">Verified</option><option value="rejected">Rejected</option></Sel>
       : <p className="text-sm capitalize">{f.idVerification} <span className="text-xs text-muted-foreground">(owner changes this)</span></p>}</Field>}
     <Field label="Notes"><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></Field>

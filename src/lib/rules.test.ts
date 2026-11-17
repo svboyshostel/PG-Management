@@ -70,17 +70,20 @@ describe("deposit status", () => {
 });
 
 describe("ID proof", () => {
-  it("manual and upload are mutually exclusive", () => {
-    expect(() => normalizeIdProof({ method: "manual", type: "pan", number: "ABCDE1234F", hasImage: true })).toThrow();
-    expect(() => normalizeIdProof({ method: "upload", type: "pan", number: "ABCDE1234F" })).toThrow();
+  it("allows ID number and image to coexist, and makes ID number optional", () => {
+    const both = normalizeIdProof({ type: "pan", number: "ABCDE1234F", hasImage: true });
+    expect(both).toEqual({ id_method: "upload", id_type: "pan", id_number: "ABCDE1234F" });
+
+    const optionalNumber = normalizeIdProof({ type: "voter_id" });
+    expect(optionalNumber).toEqual({ id_method: "manual", id_type: "voter_id", id_number: null });
   });
   it("Aadhaar is stored masked, never in full", () => {
-    expect(normalizeIdProof({ method: "manual", type: "aadhaar", number: "1234 5678 9012" }).id_number).toBe("XXXX XXXX 9012");
-    expect(() => normalizeIdProof({ method: "manual", type: "aadhaar", number: "1234" })).toThrow();
+    expect(normalizeIdProof({ type: "aadhaar", number: "1234 5678 9012" }).id_number).toBe("XXXX XXXX 9012");
+    expect(() => normalizeIdProof({ type: "aadhaar", number: "1234" })).toThrow();
   });
-  it("image must be JPG/PNG/WebP and at most 4 MB", () => {
-    expect(validateIdImage({ type: "image/png", size: 4 * 1024 * 1024 })).toBe(true);
+  it("image must be JPG/PNG/WebP and at most 5 MB", () => {
+    expect(validateIdImage({ type: "image/png", size: 5 * 1024 * 1024 })).toBe(true);
     expect(() => validateIdImage({ type: "application/pdf", size: 10 })).toThrow();
-    expect(() => validateIdImage({ type: "image/jpeg", size: 4 * 1024 * 1024 + 1 })).toThrow("4 MB");
+    expect(() => validateIdImage({ type: "image/jpeg", size: 5 * 1024 * 1024 + 1 })).toThrow("5 MB");
   });
 });

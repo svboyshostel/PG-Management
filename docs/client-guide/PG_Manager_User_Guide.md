@@ -330,32 +330,35 @@ Open **Residents → Add resident** (or click **Add resident** from the Dashboar
    - **Payment method:** Choose **Cash**, **UPI**, or **Bank** for the initial deposit paid.
 5. **Guardian & ID Proof Fields:**
    - **Guardian / parent name**, **Relationship** (`Father`, `Mother`, `Guardian`, `Spouse`, `Sibling`, `Other`), and **Guardian contact number**.
-   - **ID proof method:**
-     - **Not collected yet** — Leave blank to collect later.
-     - **Enter ID number** — Choose **ID proof type** (`Aadhaar`, `PAN`, `Driving licence`, `Passport`, `Voter ID`, `Other`) and enter **ID number**.
-       - **Aadhaar Privacy Rule:** For Aadhaar, you must enter all **12 digits**; PG Manager automatically stores **only the masked last 4 digits** (`XXXX XXXX 1234`) and never saves the full Aadhaar number.
-     - **Private document (on resident page)** — *Disabled on the Add resident screen.* See [Uploading a Private ID Document](#uploading-a-private-id-document-after-saving) below!
+   - **ID Proof Type:** Choose directly (`Aadhaar`, `PAN`, `Driving licence`, `Passport`, `Voter ID`, `Other`, or leave as `Not collected yet`).
+   - **ID Number (Optional):** Once an ID proof type is chosen, you can enter an ID number, or leave it blank to record later.
+     - **Aadhaar Privacy Rule:** If entering an Aadhaar number, enter all **12 digits**; PG Manager automatically stores **only the masked last 4 digits** (`XXXX XXXX 1234`) and never saves the full Aadhaar number.
+   - **ID Proof Image / Document (Optional):**
+     - You can capture or attach an ID proof directly during onboarding. Both options are provided:
+       - 📷 **Take Photo:** Directly opens your device or phone camera to snap the resident's ID proof.
+       - 📁 **Choose File:** Opens your photo gallery or document picker for JPEG, PNG, WebP, or PDF files.
+     - **File Size Limit & Automatic Compression:** Allows files up to **5 MB**. Photos captured with mobile cameras are automatically compressed in your browser down to ~200–400 KB before uploading to save storage space and ensure blazing-fast submission.
+     - **Optional:** You do not have to upload during onboarding; you can add or update it anytime later on the resident's profile page. Both an ID number and an uploaded image can be kept together.
 6. **Notes:** Enter any special agreement notes.
-7. Click **"Add resident"**. PG Manager creates the resident (assigning an automatic code such as `R1001`), locks the bed allocation, records any deposit paid now, and generates their first monthly rent bill if their joining date falls in the current or an earlier month.
+7. Click **"Add resident"**. PG Manager creates the resident (assigning an automatic code such as `R1001`), locks the bed allocation, records any deposit paid now, uploads and links the ID document (if attached), and generates their first monthly rent bill if their joining date falls in the current or an earlier month.
 
 > **[Screenshot Placeholder — Add Resident Form]**  
-> *Shows the "Add resident" form with Full name, Mobile (WhatsApp), Bed selector, Joining date, Monthly rent (₹), Deposit agreed (₹), Deposit paid now (₹), Payment method, Guardian fields, ID proof fields, Notes, and "Add resident" button.*
+> *Shows the "Add resident" form with Full name, Mobile (WhatsApp), Bed selector, Joining date, Monthly rent (₹), Deposit agreed (₹), Deposit paid now (₹), Payment method, Guardian fields, ID proof type selector, optional ID number, Camera and File upload buttons, Notes, and "Add resident" button.*
 
-> **IMPORTANT — Two Key Things to Know Right After Onboarding:**
+> **IMPORTANT — Key Things to Know Right After Onboarding:**
 > 1. **Collecting the First Month's Rent:** The **Add resident** form collects **Security Deposit Paid Now**, not rent. To record the resident's first rent payment, immediately click **"Collect payment"** on the newly opened Resident Profile page, leave **For** set to **Rent & charges**, enter the amount, and click **"Record ₹..."**.
-> 2. **Uploading an ID Document Image or PDF (Up to 4 MB):** File upload happens on the **Resident Profile** page *after* saving the resident—not inside the initial Add resident form.
+> 2. **Viewing and Managing Uploaded ID Proofs:** Uploaded ID images are displayed with a live thumbnail preview directly inside the **Guardian & ID** card on the resident's profile page.
 
-### Uploading a Private ID Document (After Saving)
-Once you are on the resident's profile page (`/residents/<id>`):
-1. Locate the **Guardian & ID** card and scroll to **Private ID document**.
-2. Select the **Document ID type** (`Aadhaar`, `PAN`, `Driving licence`, `Passport`, `Voter ID`, or `Other`).
-3. Click **Private ID file** and choose a **JPEG, PNG, or PDF** file up to **4 MB** (`4,194,304` bytes).
-   - *Validation:* Files larger than **4 MB**, unsupported file extensions, or files whose actual contents do not match JPEG/PNG/PDF signatures are rejected with a clear error message.
-4. Click **"Upload ID"**.
-5. Once uploaded:
-   - Only **one active private document** can be stored per resident at a time.
-   - Click the **Eye icon (`View document`)** to preview securely in a new tab, **Download icon (`Download document`)** to save locally, or **Trash icon (`Delete document`)** to delete it (required before uploading a replacement or switching back to manual ID number entry).
-   - **ID Verification Status:** By default, uploaded or entered IDs show **`Pending`**. Only the **Owner** can mark an ID as **`Verified`** or **`Rejected`** under **Resident → Edit → ID verification**.
+### Uploading or Viewing a Private ID Document on the Profile Page
+On the resident's profile page (`/residents/<id>`):
+1. Locate the **Guardian & ID** card and view the **Private ID document** section:
+   - **Inline Image Preview:** Any uploaded ID image displays an instant thumbnail preview. Tap or click the preview image to view it full-size in a secure tab. (PDF documents show a clear PDF document card).
+   - **Actions:** Use the **Eye icon (`View document`)** to open the full document, **Download icon (`Download document`)** to save locally, or **Trash icon (`Delete document`)** to remove it.
+2. **Uploading an ID Document Later:** If no document was uploaded during onboarding:
+   - Select the **ID type**.
+   - Click **Take Photo** to snap with your camera or **Choose File** to pick a file (JPEG, PNG, WebP or PDF up to 5 MB).
+   - Click **"Upload ID"** (images are automatically compressed for high performance).
+3. **ID Verification Status:** By default, uploaded or entered IDs show **`Pending`**. Only the **Owner** can mark an ID as **`Verified`** or **`Rejected`** under **Resident → Edit → ID verification**. Both an ID number and a private document can coexist on the profile.
 
 ---
 
@@ -552,7 +555,7 @@ PG Manager ships with **4 active default templates**: `Rent Reminder`, `Overdue 
 2. Update **Name**, **Mobile**, **Alternate mobile**, **Deposit agreed (₹)**, **Guardian** fields, **ID proof** fields, or **Notes**.
 3. **Owner ID Verification:** The Owner can update **ID verification** status (`Pending`, `Verified`, `Rejected`). Staff can view it but cannot change it.
 4. Click **"Save"**.
-   - *ID Switching Rule:* If a private document file is currently uploaded, you must first **Delete** that file from the **Private ID document** section before switching ID proof method back to `"Enter ID number"` or `"Not collected yet"`.
+   - *Flexibility:* You can update the ID proof type or ID number anytime. If a private document is uploaded, it remains safely attached and both the number and document are preserved together.
 
 ### 2. Changing Rooms, Beds or Branches (`Resident → Change room`)
 1. On an **active** resident's profile, click **"Change room"**.
